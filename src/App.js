@@ -7,6 +7,8 @@ import SessionDetails from '../src/pages/SessionDetails';
 import "primereact/resources/themes/lara-light-indigo/theme.css";  // thème
 import "primereact/resources/primereact.min.css";                  // core css
 import "primeicons/primeicons.css";                               // icons
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyCodePage from './pages/VerifyCodePage';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/" element={<LoginComp />} />
         <Route path="/bonjour" element={<BonjourPage />} />
         <Route path="/session/:id" element={<SessionDetails />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verifycode" element={<VerifyCodePage />} />
       </Routes>
     </Router>
   );
