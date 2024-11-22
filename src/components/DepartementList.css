@@ -1,0 +1,23 @@
+.text-xl {
+  font-weight: bold !important;
+}
+
+.p-inputgroup {
+  margin-top: 0.6rem !important;
+}
+
+.p-inputtext, .p-inputnumber-input {
+  font-weight: bold !important;
+}
+
+.grid > .col-12 {
+  margin-bottom: 2.5rem !important;
+}
+
+.grid > .col-12:last-child {
+  margin-bottom: 0 !important;
+}
+
+.p-button.p-button-success {
+  margin-right: 0.5rem !important;
+}

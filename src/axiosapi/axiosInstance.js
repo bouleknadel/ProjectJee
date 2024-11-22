@@ -1,23 +1,23 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8081', // URL de base de l'API
+  baseURL: 'http://localhost:8082', // URL de base de l'API
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Ajouter un intercepteur de requêtes
+// Intercepteur de requêtes
 axiosInstance.interceptors.request.use(
   (config) => {
     // Vérifier si la requête est pour /login
     if (config.url === '/login') {
-      return config;  // Ne pas ajouter le token pour cette requête spécifique
+      return config; // Ne pas ajouter le token pour cette requête spécifique
     }
 
     // Récupérer le token d'accès depuis localStorage
     const token = localStorage.getItem('access_token');
-    
+
     // Si le token existe, l'ajouter dans l'en-tête Authorization
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -32,7 +32,7 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Ajouter un intercepteur de réponses
+// Intercepteur de réponses
 axiosInstance.interceptors.response.use(
   (response) => {
     // Traitez la réponse ici si nécessaire
@@ -45,6 +45,8 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === 401) {
         // Vous pouvez ajouter une logique pour rediriger l'utilisateur vers la page de connexion
         console.error('Non autorisé, veuillez vous reconnecter');
+        // Optionnel : redirection vers la page de login
+        // window.location.href = '/login';
       }
     }
     return Promise.reject(error);

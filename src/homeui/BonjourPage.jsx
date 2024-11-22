@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog'; // Import du Dialog
 import { Dropdown } from 'primereact/dropdown'; // Import pour le dropdown
 import { Calendar } from 'primereact/calendar'; // Ajout de l'import Calendar
+import { Link } from 'react-router-dom'; // Import pour le Link
 
 
 
@@ -123,10 +124,35 @@ const handleTimeChange = (index, field, value) => {
   const renderHeader = () => {
     return (
       <div>
-        <div className="flex justify-content-between align-items-center" style={{ padding: '0 0.5rem' }}>
+        <div
+          className="flex justify-content-between align-items-center"
+          style={{ padding: '0 0.5rem' }}
+        >
           <h2 className="m-0">Session</h2>
+
+          {/* Lien vers la liste des enseignants */}
+          <Link to="/enseignant">
+            <Button
+              label="Liste des Enseignants"
+              icon="pi pi-user"
+              severity="info"
+            />
+          </Link>
+
+          {/* Lien vers la liste des locaux */}
+          <Link to="/local">
+            <Button
+              label="Liste des Locaux"
+              icon="pi pi-building"
+              severity="info"
+            />
+          </Link>
         </div>
-        <div className="flex align-items-center mt-3" style={{ position: 'relative' }}>
+
+        <div
+          className="flex align-items-center mt-3"
+          style={{ position: 'relative' }}
+        >
           <span className="p-input-icon-left">
             <i className="pi pi-search" style={{ left: '0.75rem' }} />
             <InputText
@@ -134,7 +160,7 @@ const handleTimeChange = (index, field, value) => {
               onChange={(e) => setGlobalFilterValue(e.target.value)}
               placeholder="Rechercher..."
               style={{
-                paddingLeft: '2.5rem'
+                paddingLeft: '2.5rem',
               }}
               className="p-inputtext-lg"
             />
@@ -145,14 +171,12 @@ const handleTimeChange = (index, field, value) => {
             severity="success"
             onClick={() => {
               setSelectedType(null);
-              setVisible(true)
-
-            }
-            } // Ouvre le modal
+              setVisible(true);
+            }} // Ouvre le modal
             className="p-button-raised"
             style={{
               position: 'absolute',
-              right: '0'
+              right: '0',
             }}
           />
         </div>
