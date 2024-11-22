@@ -9,6 +9,13 @@ import 'primereact/resources/primereact.min.css'; // core css
 import 'primeicons/primeicons.css'; // icons
 import DepartementList from './components/DepartementList';
 import DepartementEnseignantList from './components/DepartementEnseignantList';
+import SessionDetails from '../src/pages/SessionDetails';
+import "primereact/resources/themes/lara-light-indigo/theme.css";  // thème
+import "primereact/resources/primereact.min.css";                  // core css
+import "primeicons/primeicons.css";                               // icons
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyCodePage from './pages/VerifyCodePage';
+
 
 
 function App() {
@@ -21,7 +28,10 @@ function App() {
           <Route path="/enseignant" element={<EnseignantList />} />{' '}
           <Route path="/local" element={<LocalList />} />
           <Route path="/departements" element={<DepartementList />} />
-            <Route path="/departements/:departementId/enseignants" element={<DepartementEnseignantList />} />
+          <Route path="/departements/:departementId/enseignants" element={<DepartementEnseignantList />} />
+          <Route path="/session/:id" element={<SessionDetails />} />
+          <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verifycode" element={<VerifyCodePage />} />
 
         </Routes>
       </Router>
