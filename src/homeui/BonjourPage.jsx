@@ -6,16 +6,36 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog'; // Import du Dialog
 import { Dropdown } from 'primereact/dropdown'; // Import pour le dropdown
 import { Calendar } from 'primereact/calendar'; // Ajout de l'import Calendar
+import SessionService from '../services/SessionService';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 
 
 const BonjourPage = () => {
+  const navigate = useNavigate(); // Hook pour la navigation
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const data = await SessionService.getSessions();
+        setSessions(data);
+        setLoading(false);
+      } catch (error) {
+        alert('Error fetching sessions:', error);
+      }
+    };
+  
+    fetchSessions();
+  }, []);
   const [sessions, setSessions] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(true);
+  const [dialogtitle,setDialogTitle]=useState("Ajouter")
   const [visible, setVisible] = useState(false); // État pour contrôler la visibilité du modal
   const [selectedType, setSelectedType] = useState(null);
-  const [dates, setDates] = useState(null); // Ajout de l'état pour les dates
+  const [dates, setDates] = useState(null);
+  const [sessionupdate, setSessionUpdate] = useState(); 
   const [formattedDates, setFormattedDates] = useState(null); // Nouvel état pour les dates formatées
   const [timeSlots, setTimeSlots] = useState([
     { start: '08:00', end: '10:00' },
@@ -37,37 +57,7 @@ const handleTimeChange = (index, field, value) => {
     { label: 'Rattrapage Hiver', value: 'RATTRAPAGE_HIVER' },
     { label: 'Rattrapage Printemps', value: 'RATTRAPAGE_PRINTEMPS' }
   ];
-  useEffect(() => {
-    const data = [
-      {
-        id: '1',
-        typeSession: 'Normale',
-        dateDebut: '2024-01-15',
-        dateFin: '2024-05-15'
-      },
-      {
-        id: '2',
-        typeSession: 'Rattrapage',
-        dateDebut: '2024-06-01',
-        dateFin: '2024-06-30'
-      },
-      {
-        id: '3',
-        typeSession: 'Normale',
-        dateDebut: '2024-09-15',
-        dateFin: '2024-12-31'
-      },
-      {
-        id: '4',
-        typeSession: 'Exceptionnelle',
-        dateDebut: '2024-07-01',
-        dateFin: '2024-07-30'
-      }
-    ];
 
-    setSessions(data);
-    setLoading(false);
-  }, []);
 
   const formatDate = (value) => {
     return new Date(value).toLocaleDateString('fr-FR', {
@@ -108,16 +98,64 @@ const handleTimeChange = (index, field, value) => {
           tooltipOptions={{ position: 'top' }}
           style={{ margin: '0 0.1rem' }}
         />
+       
       </div>
     );
   };
 
   const handleEdit = (session) => {
-    console.log('Modifier la session:', session);
+    setDialogTitle("Modifier ")
+    setSelectedType(session.typeSession)
+    setSessionUpdate(session);
+  const startDate = new Date(session.dateDebut);
+  const endDate = new Date(session.dateFin);
+  setDates([startDate, endDate]);
+  setTimeSlots([
+    { start: session.start1, end: session.end1 },
+    { start: session.start2, end: session.end2 },
+    { start: session.start3, end: session.end3 },
+    { start: session.start4, end: session.end4 }
+  ]);
+
+    setVisible(true)
   };
 
   const handleDelete = (session) => {
-    console.log('Supprimer la session:', session);
+    Swal.fire({
+      title: 'Êtes-vous sûr ?',
+      text: "Cette action est irréversible !",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, supprimer !',
+      cancelButtonText: 'Annuler'
+  }).then(async (result) => {
+      if (result.isConfirmed) {
+          Swal.fire(
+              'Supprimé !',
+              'L\'élément a été supprimé avec succès.',
+              'success'
+          );
+          await SessionService.deleteSession(session.id);
+          const response = await SessionService.getSessions();
+          setSessions(response);
+
+          
+      }
+  });
+  };
+  const createSession = async (sessionData) => {
+    try {
+      const createdSession = await SessionService.createSession(sessionData);
+      const data = await SessionService.getSessions();
+      setSessions(data);
+
+      console.log("Session créée avec succès:", createdSession);
+    } catch (error) {
+      console.error('Error creating session:', error);
+      // Handle error, e.g., show error message
+    }
   };
 
   const renderHeader = () => {
@@ -145,6 +183,7 @@ const handleTimeChange = (index, field, value) => {
             severity="success"
             onClick={() => {
               setSelectedType(null);
+              setDates(null)
               setVisible(true)
 
             }
@@ -164,7 +203,7 @@ const handleTimeChange = (index, field, value) => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
 };
   // Footer du modal avec les boutons
   const renderFooter = () => {
@@ -180,9 +219,45 @@ const handleTimeChange = (index, field, value) => {
           label="Sauvegarder"
           icon="pi pi-check"
           onClick={() => {
-          
-            console.log('date', formattedDates);
-            console.log('Créneaux horaires:', timeSlots);
+            if(dialogtitle!=="Modifier "){
+           const jsonBodySession={typeSession:selectedType,
+              dateDebut:formattedDates[0],
+              dateFin:formattedDates[1],
+              start1: timeSlots[0].start,
+              end1: timeSlots[0].end,
+              start2: timeSlots[1].start,
+              end2: timeSlots[1].end,
+              start3: timeSlots[2].start,
+              end3: timeSlots[2].end,
+              start4: timeSlots[3].start,
+              end4: timeSlots[3].end
+
+            }
+               
+        
+
+            createSession(jsonBodySession);
+          }
+          else{            
+            const jsonBodySession = {
+              id: sessionupdate.id,
+              typeSession: selectedType || sessionupdate.typeSession, // Si selectedType est null, utiliser sessionupdate.typeSession
+              dateDebut: formattedDates?.[0] || sessionupdate.dateDebut, // Si formattedDates[0] est null, utiliser sessionupdate.dateDebut
+              dateFin: formattedDates?.[1] || sessionupdate.dateFin, // Si formattedDates[1] est null, utiliser sessionupdate.dateFin
+              start1: timeSlots?.[0]?.start || sessionupdate.start1, // Si timeSlots[0].start est null, utiliser sessionupdate.start1
+              end1: timeSlots?.[0]?.end || sessionupdate.end1, // Si timeSlots[0].end est null, utiliser sessionupdate.end1
+              start2: timeSlots?.[1]?.start || sessionupdate.start2, // Si timeSlots[1].start est null, utiliser sessionupdate.start2
+              end2: timeSlots?.[1]?.end || sessionupdate.end2, // Si timeSlots[1].end est null, utiliser sessionupdate.end2
+              start3: timeSlots?.[2]?.start || sessionupdate.start3, // Si timeSlots[2].start est null, utiliser sessionupdate.start3
+              end3: timeSlots?.[2]?.end || sessionupdate.end3, // Si timeSlots[2].end est null, utiliser sessionupdate.end3
+              start4: timeSlots?.[3]?.start || sessionupdate.start4, // Si timeSlots[3].start est null, utiliser sessionupdate.start4
+              end4: timeSlots?.[3]?.end || sessionupdate.end4 // Si timeSlots[3].end est null, utiliser sessionupdate.end4
+          };
+          createSession(jsonBodySession);
+
+
+          }
+
             setVisible(false);
             setSelectedType(null);
           }}
@@ -217,6 +292,16 @@ const handleTimeChange = (index, field, value) => {
           header="ID"
           sortable
           style={{ minWidth: '5rem' }}
+          body={(rowData) => (
+            <Button
+              label={rowData.id}
+              onClick={() => {
+                navigate(`/session/${rowData.id}`)
+              }}
+              className="p-button-text"
+              style={{ textDecoration: 'underline', color: 'blue' }}
+            />
+          )}
         />
         <Column
           field="typeSession"
@@ -246,7 +331,7 @@ const handleTimeChange = (index, field, value) => {
       </DataTable>
       {/* Modal Dialog */}
       <Dialog
-        header="Ajouter une Session"
+        header={`${dialogtitle} une Session`} 
         visible={visible}
         style={{ width: '50vw' }}
         onHide={() => {
