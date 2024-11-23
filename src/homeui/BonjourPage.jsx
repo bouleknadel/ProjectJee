@@ -167,23 +167,7 @@ const handleTimeChange = (index, field, value) => {
         >
           <h2 className="m-0">Session</h2>
 
-          {/* Lien vers la liste des enseignants */}
-          <Link to="/enseignant">
-            <Button
-              label="Liste des Enseignants"
-              icon="pi pi-user"
-              severity="info"
-            />
-          </Link>
-
-          {/* Lien vers la liste des locaux */}
-          <Link to="/local">
-            <Button
-              label="Liste des Locaux"
-              icon="pi pi-building"
-              severity="info"
-            />
-          </Link>
+        
         </div>
 
         <div
